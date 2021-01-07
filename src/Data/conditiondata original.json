@@ -1,0 +1,130 @@
+{
+    "Name":"Workflow1",
+    "version":"1.0",
+    "initialState":"firstState",
+    "finalState":"complete",
+    "initialData":{"status":"Requestor"},
+    "states":[{
+    "name":"firstState",
+    "launchaction":"FunctionA",
+    "form":{"formio":"firstworkflowform"},
+    "transition":{
+        "Condition": {
+          "expression":{
+            "logic":{
+                "and" : [
+                   {"!=":[{"var":"requestoremailId"}, ""]},
+                   {"!=":[{"var":"approveremailId"}, ""]},
+                   {"==":[{"var":"status"}, "Requestor"]}
+                ]
+               },
+               "true": [{
+                "type":"Request",
+                "actions": [
+                    "SENDEMAIL"
+                ],
+                   "target": "secondState",
+                   "Data": {
+                       "status": "Approver"
+                   }
+               }],
+               "false": {
+                   "actions": [
+                       "DONOTSENDEMAIL"
+                   ],
+                   "target": "firstState",
+                   "Data": {
+                       "status": "Requestor"
+                       }
+                   }
+               }
+           }
+         }   
+    },
+    {
+        "name":"secondState",
+        "launchaction":"FunctionB",
+        "form":{"formio":"secondWorkflowForm"},
+        "transition":{
+         "Condition": {
+            "expression":{
+                "logic":{
+                    "and" : [
+                       {"!=":[{"var":"approveremailId"}, ""]},
+                       {"!=":[{"var":"finalizeremailId"}, ""]},
+                       {"==":[{"var":"status"}, "Approver"]}
+                    ]
+                    },
+                    "true":[
+                    {
+                        "type":"Approve",
+                        "actions":["SENDEMAIL"],
+                        "target":"thirdState",
+                        "Data": {
+                            "status": "Finalizer"
+                        }
+                    },
+                    {
+                        "type":"Reject",
+                        "actions":["SENDEMAIL"],
+                        "target":"firstState",
+                        "Data": {
+                            "status": "Requestor"
+                        }
+                    }],
+                    "false":{
+                        "actions":["DONOTSENDEMAIL"],
+                         "target":"secondState",
+                         "Data": {
+                            "status": "Approver"
+                        }
+                    }
+                }
+            }
+         }
+    },
+    {
+        "name":"thirdState",
+        "form":{"formio":"thirdWorkflowForm"},
+        "transition":{
+        "Condition": {
+            "expression":{
+                "logic":{
+                    "and" : [
+                       {"!=":[{"var":"finalizeremailId"}, ""]},
+                       {"==":[{"var":"status"}, "Finalizer"]}
+                    ]
+                },              
+                 "true":[{
+                    "type":"Finalize",
+                    "actions":["SENDEMAIL"],
+                        "target":"complete",
+                        "Data": {
+                            "status": "Complete"
+                        }
+                      },{
+                        "type":"Review",
+                        "actions":["SENDEMAIL"],
+                            "target":"secondState",
+                            "Data": {
+                                "status": "Approver"
+                            }
+                        }],
+                      "false":{
+                        "actions":["DONOTSENDEMAIL"],
+                         "target":"thirdState",
+                         "Data": {
+                            "status": "Finalizer"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    {
+        "name": "complete",
+        "form":{"formio":"completedForm"},
+        "transition":null
+    }
+  ]
+}

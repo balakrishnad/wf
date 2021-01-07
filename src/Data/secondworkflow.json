@@ -1,0 +1,91 @@
+{
+    "Name":"Workflow2",
+    "version":"1.0",
+    "initialState":"firstState",
+    "finalState":"complete",
+    "initialData":{"status":"DatabaseCreator"},
+    "states":[{
+    "name":"firstState",
+    "form":"FirstCreationForm",
+    "transition":{
+      "Condition": {
+        "expression":{
+          "logic":{
+            "and" : [
+              {"==":[{"var":"status"}, ["DatabaseCreator"]]}
+           ]
+           },
+           "true": [{
+               "type":"Request",
+               "actions": [
+                   "CEATEDATABASE"
+               ],
+               "target": "secondState",
+               "Data": {
+                   "status": "DatabaseApprover"
+               }
+           }],
+           "false": {
+               "actions": [
+                   "DONOTCREATEDATABASE"
+               ],
+               "target": "firstState",
+               "Data": {
+                   "status": "DatabaseCreator"
+                   }
+               }
+           }
+      }
+     }
+    },
+    {
+        "name":"secondState",
+        "form":"SecondCreationForm",
+        "transition":{
+          "Condition": {
+            "expression":{
+              "logic":{
+                "and" : [
+                  {"==":[{"var":"status"}, ["DatabaseApprover"]]}
+               ]
+               },
+               "true": [{
+                   "type":"Approve",
+                   "actions": [
+                       "CEATEDATABASE"
+                   ],
+                   "target": "complete",
+                   "Data": {
+                       "status": "complete"
+                   }
+               },
+               {
+                "type":"Reject",
+                "actions": [
+                    "DONOTCREATEDATABASE"
+                ],
+                "target": "firstState",
+                "Data": {
+                    "status": "DatabaseCreator"
+                }
+            }],
+               "false": {
+                   "actions": [
+                       "DONOTCREATEDATABASE"
+                   ],
+                   "target": "secondState",
+                   "Data": {
+                       "status": "DatabaseApprover"
+                       }
+                   }
+               }
+          }
+         }
+    },
+    {
+        "name": "complete",
+        "form":"CompleteForm",
+        "actions":null
+    }
+  ]
+}

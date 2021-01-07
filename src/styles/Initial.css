@@ -1,0 +1,42 @@
+#resp-table-caption{
+    display: table-caption;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    }
+    .Person{
+        width:60%;
+        text-align: center;
+        margin: 4px auto;
+        padding: 16px;
+    }
+
+#resp-table-header{
+    display: table-row;
+    font-weight: bold;
+    text-align: center;
+    }
+
+#outer {
+    width:100%
+    }
+
+#resp-table-body{
+        display: table-row-group;
+        margin: 0 auto;
+        border: 3px solid #73AD21;
+        padding: 10px;
+        align-items: center;
+    }
+        
+.resp-table-row{
+    display: table-row;
+    }
+
+.table-body-cell{
+        display: table-cell;
+        border: solid;
+        border-width: thin;
+        padding-left: 5px;
+        padding-right: 5px;
+    }

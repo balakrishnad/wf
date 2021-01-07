@@ -1,0 +1,133 @@
+{
+    "Name":"Workflow1",
+    "version":"1.0",
+    "id":"1",
+    "key":"",
+    "initial":"firstState",
+    "final":"complete",
+    "initialData":{"status":"Requestor"},
+    "states":{
+    "firstState":{
+    "invoke":"FunctionA",
+    "form":{"formio":"firstworkflowform"},
+     "on":{
+        "Request":[{
+            "target": "secondState",
+            "cond":{
+                "and" : [
+                   {"!=":[{"var":"requestoremailId"}, ""]},
+                   {"!=":[{"var":"approveremailId"}, ""]},
+                   {"==":[{"var":"status"}, "Requestor"]}
+                ]
+            },
+            "actions": ["SENDEMAIL"],
+            "Data": {
+                    "status": "Approver"
+                }
+         },
+         {
+            "target": "firstState",
+            "actions": ["DONOTSENDEMAIL"],
+            "Data": {
+                "status": "Requestor"
+            }
+         }]
+      }
+    },
+    "secondState":{
+        "invoke":"FunctionB",
+        "form":{"formio":"secondWorkflowForm"},
+        "on":{
+        "Approve":[{
+            "target":"thirdState",
+            "cond":{
+                "and" : [
+                    {"!=":[{"var":"approveremailId"}, ""]},
+                    {"!=":[{"var":"finalizeremailId"}, ""]},
+                    {"==":[{"var":"status"}, "Approver"]}
+                ]},
+            "actions":["SENDEMAIL"],
+            "Data": {
+                "status": "Finalizer"
+            }
+        },
+        {
+            "target":"secondState",
+            "actions":["DONOTSENDEMAIL"],
+            "Data": {
+               "status": "Approver"
+        }
+        }],
+        "Reject":[{
+            "target":"firstState",
+            "cond":{
+                "and" : [
+                    {"!=":[{"var":"approveremailId"}, ""]},
+                    {"!=":[{"var":"finalizeremailId"}, ""]},
+                    {"==":[{"var":"status"}, "Approver"]}
+                ]},
+                "actions":["SENDEMAIL"],
+
+                "Data": {
+                    "status": "Requestor"
+                }
+            },
+            {
+                "target":"secondState",
+                "actions":["DONOTSENDEMAIL"],
+                "Data": {
+                    "status": "Approver"
+                }
+            }]
+        }
+    },
+    "thirdState":{
+        "invoke":"FunctionC",
+        "form":{"formio":"thirdWorkflowForm"},
+        "on":{
+        "Finalize" :[{
+            "target":"complete",
+            "cond":{
+                "and" : [
+                    {"!=":[{"var":"finalizeremailId"}, ""]},
+                    {"==":[{"var":"status"}, "Finalizer"]}
+                ]},
+            "actions":["SENDEMAIL"],
+            "Data": {
+                "status": "Complete"
+            }
+        },
+        {
+           "target":"thirdState",
+           "actions":["DONOTSENDEMAIL"],
+           "Data": {
+            "status": "Finalizer"
+           }
+        }],
+        "Review":[{
+            "target":"secondState",
+            "cond":{
+                "and" : [
+                    {"!=":[{"var":"finalizeremailId"}, ""]},
+                    {"==":[{"var":"status"}, "Finalizer"]}
+                ]},
+            "actions":["SENDEMAIL"],
+            "Data": {
+                "status": "Approver"
+            }
+        },
+        {
+            "target":"thirdState",
+            "actions":["DONOTSENDEMAIL"],
+            "Data": {
+                "status": "Finalizer"
+            }
+        }]
+    }
+    },
+    "complete":{
+        "form":{"formio":"completedForm"},
+        "on":null
+    }
+  }
+}
